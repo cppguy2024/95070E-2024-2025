@@ -13,6 +13,7 @@ extern motor BR;
 extern motor_group RightDrive;
 
 extern digital_out P;
+extern digital_out Doinker;
 
 extern motor Intake1;
 extern motor Intake2;

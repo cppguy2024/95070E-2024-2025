@@ -1,6 +1,7 @@
 #include "vex.h"
 #include "auton.h"
 #include <iostream>
+#include "robot-config.hpp"
 
 static void drivePID(double kp, double ki, double kd, double target) {
     double lefterror = target;
@@ -56,14 +57,33 @@ static void turnPID(std::string direction, double kp, double ki, double kd, doub
     double perror = error;
     double d;
     double i = 0;
+    if (target > 180) target -= 360;
+    if (target < -180) target += 360;
     double total  = 0;
-
+    double restedstates = 0;
+    double stalledstates = 0;
     Inertial.resetRotation();
 
-    while(true) {
-        error = target + Inertial.rotation(degrees);
-        d = (error - perror) * 40;
-        total = error * kp - d * kd;
+    while(restedstates<5&&stalledstates<50) {
+        error = target - Inertial.rotation(degrees);
+        if (fabs(error) < 30) i += error;
+        if (fabs(error) < 0.1) i = 0;
+        if (fabs(error - perror) < 0.005) stalledstates++;
+        else stalledstates = 0;
+        double out = kp * error + ki * i + kd * (error - perror);
+        
+        
+        perror = error;
+
+        wait(20,msec);
+
+        if ((fabs(target - Inertial.rotation(degrees))) < 2){
+            restedstates++;
+        }
+
+        else restedstates = 0;
+       
+
 
         if(direction == "right") {
             LeftDrive.spin(forward, total, pct);
@@ -75,11 +95,7 @@ static void turnPID(std::string direction, double kp, double ki, double kd, doub
             RightDrive.spin(forward, total, pct);
         }
 
-        if(error < 24) {
-            i += error/40;
-        }
-        
-        perror = error;
+       
 
         wait(20, msec);
     }
@@ -89,6 +105,7 @@ static void turnPID(std::string direction, double kp, double ki, double kd, doub
 
     wait(100, msec);
 }
+
 
 static void drive(std::string direction, double target) {
     if(direction == "forward") {            

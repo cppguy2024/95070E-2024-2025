@@ -20,7 +20,7 @@ motor_group RightDrive = motor_group(FR, MR, BR);
 
 
 digital_out P = digital_out(Brain.ThreeWirePort.H);
-
+digital_out Doinker = digital_out(Brain.ThreeWirePort.A);
 
 motor Intake1 = motor(PORT3, ratio18_1, true);
 motor Intake2 = motor(PORT10, ratio6_1, true);

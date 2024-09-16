@@ -3,6 +3,7 @@
 #include "auton.h"
 #include <iostream>
 #include <cstdlib>
+#include "robot-config.hpp"
 using namespace vex;
 using signature = vision::signature;
 using code = vision::code;

@@ -1,6 +1,8 @@
 #include "vex.h"
 #include <iostream>
 #include <cstdlib>
+using namespace vex;
+#include "robot-config.hpp"
 
 static void MoveDrivetrain() {
     double TempSpeed = 1;
@@ -76,6 +78,16 @@ static void MoveIntake() {
     }
 }
 
+
+static void doinker(){
+  if(Controller.ButtonA.pressing()) {
+      Doinker.set(true);
+    }
+  if(Controller.ButtonB.pressing()) {
+      Doinker.set(false);
+    }
+}
+
 /*static void MoveClaw() {
     
     Claw.setVelocity(100, pct);
@@ -108,6 +120,7 @@ void drivercontrol() {
       MoveIntake();
       //MoveClaw();
       MoveMogo();
+      doinker();
 
       wait(20, msec);
     }

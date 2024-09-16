@@ -1,0 +1,9 @@
+# default by VEX extension
+/bin
+/build
+compile_commands.json
+
+# ignore our own meta folders
+build/
+.vscode/
+# vscode_*

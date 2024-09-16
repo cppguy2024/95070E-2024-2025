@@ -10,7 +10,7 @@ this codebase is based on VSCode ``VEX Robotics Extension``. before you start to
 go to top menu ``Terminal`` -> ``New Terminal`` and type the command:
 
 ```
-$ mv vscode_mac .vscode
+$ cp -r vscode_mac .vscode
 ```
 
 ##### for windows user
@@ -18,7 +18,7 @@ $ mv vscode_mac .vscode
 go to top menu ``Terminal`` -> ``New Terminal`` and type the command:
 
 ```
-$ ren "vscode_win"  ".vscode"
+$ xcopy "vscode_win"  ".vscode"  /E /H /C /I
 ```
 
 

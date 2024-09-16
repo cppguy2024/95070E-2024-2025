@@ -6,4 +6,4 @@ compile_commands.json
 # ignore our own meta folders
 build/
 .vscode/
-# vscode_*
+vscode_*

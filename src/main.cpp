@@ -8,8 +8,6 @@ using namespace vex;
 using signature = vision::signature;
 using code = vision::code;
 
-// TBD, this is some change we need to add.
-
 competition Competition;
 bool inauton = false;
 
@@ -22,7 +20,7 @@ int autons = 4;
 int displayautons = 0;
 
 void select(){
-  while(1) {
+  while(true) {
     if (Controller.ButtonRight.pressing()) {
       displayautons++;
     }
@@ -82,9 +80,10 @@ void select(){
 
 void pre_auton(void) {
   
-  //select();
+  select();
   vexcodeInit();
-
+  Inertial.calibrate();
+  wait(3000, msec);
 }
 
 void autonomous(void) {
@@ -116,10 +115,9 @@ int main() {
   Competition.drivercontrol(drivercontrol);
   Competition.autonomous(autonomous);
 
-  
   pre_auton();
   
-  while(1) {
+  while(true) {
     wait(20, msec);
   }
   void vexcodeInit(void);

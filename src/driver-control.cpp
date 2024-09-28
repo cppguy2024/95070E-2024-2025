@@ -40,26 +40,17 @@ static void MoveIntake() {
       if(Speed == 1) {
       Speed = 0;
     }
-
-      else if(Speed == 0) {
-        Speed = 1;
-      }
-
       else {
         Speed = 1;
       }
     }
 
-    if(Speed == 1) {
-      IntakeSpeed = 70;
-    }
-
-    else if(Speed == 0) {
+    if(Speed == 0) {
       IntakeSpeed = 35;
     }
-
+    
     else {
-      IntakeSpeed = 70;
+      IntakeSpeed = 80;
     }
     
     Intake1.setVelocity(99, pct);
@@ -79,12 +70,14 @@ static void MoveIntake() {
 }
 
 
-static void doinker(){
+static void MoveDoinker(){
+  
   if(Controller.ButtonA.pressing()) {
-      Doinker.set(true);
+      D.set(false);
     }
+  
   if(Controller.ButtonB.pressing()) {
-      Doinker.set(false);
+      D.set(true);
     }
 }
 
@@ -118,9 +111,9 @@ void drivercontrol() {
     while(true){
       MoveDrivetrain();
       MoveIntake();
+      MoveDoinker();
       //MoveClaw();
       MoveMogo();
-      doinker();
 
       wait(20, msec);
     }

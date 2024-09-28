@@ -20,14 +20,13 @@ motor_group RightDrive = motor_group(FR, MR, BR);
 
 
 digital_out P = digital_out(Brain.ThreeWirePort.H);
-digital_out Doinker = digital_out(Brain.ThreeWirePort.A);
+digital_out D = digital_out(Brain.ThreeWirePort.A);
 
-motor Intake1 = motor(PORT3, ratio18_1, true);
+motor Intake1 = motor(PORT3, ratio18_1, false);
 motor Intake2 = motor(PORT10, ratio6_1, true);
 motor_group Intake = motor_group(Intake1, Intake2);
-
 //motor Claw = motor(PORT, ratio18_1, false);
 
-inertial Inertial = inertial(PORT20);
+inertial Inertial = inertial(PORT16);
 
 void vexcodeInit(void);

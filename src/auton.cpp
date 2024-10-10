@@ -228,7 +228,29 @@ void AWPBlue() {
 }
 
 void Red() {
-   
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99, pct);
+    drive("reverse", 27.5);
+    P.set(true);
+    Intake.spin(forward);
+    drive("reverse", 3);
+    turn(135);
+    drive("forward", 19);
+    turn(105);
+    drive("forward", 9);
+    wait(1000, msec);
+    drive("reverse", 24);
+    turn(67.5);
+    drive("forward", 20);
+    turn(305);
+    drive("forward", 33);
+    D.set(true);
+    drive("reverse", 15);
+    D.set(false);
+    drive("forward", 15);
+    wait(4000, msec);
+    Intake.stop();
 }
 
 void Blue() {
@@ -252,14 +274,20 @@ void Blue() {
     D.set(true);
     drive("reverse", 15);
     D.set(false);
-    turn(55);
     drive("forward", 15);
     wait(4000, msec);
     Intake.stop();
 }
 
 void GoalRushRed() {
-
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99, pct);
+    drive("reverse", 30);
+    turn(330);
+    drive("reverse", 19);
+    P.set(true);
+    Intake.spin(forward);
 }
 
 void GoalRushBlue() {

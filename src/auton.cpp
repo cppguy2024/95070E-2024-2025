@@ -178,7 +178,28 @@ static void turn(double target) {
 }
 
 void AWPRed() {
-
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99, pct);
+    drive("reverse", 27.5);
+    P.set(true);
+    Intake.spin(forward);
+    drive("reverse", 2);
+    turn(90);
+    drive("forward", 24);
+    turn(0);
+    P.set(false);
+    drive("forward", 24);
+    turn(270);
+    drive("forward", 84);
+    turn(330);
+    drive("reverse", 22);
+    P.set(true);
+    turn(285);
+    drive("forward", 22);
+    wait(1000, msec);
+    turn(80);
+    drive("forward", 34);
 }
 
 void AWPBlue() {

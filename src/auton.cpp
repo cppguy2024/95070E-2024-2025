@@ -300,3 +300,45 @@ void GoalRushBlue() {
     P.set(true);
     Intake.spin(forward);
 }
+void autonskills(){
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99,pct);
+    Intake.spin(forward);
+    wait(3,seconds);
+    turn(225);
+    drive("reverse",26.83281573);
+    wait(1,seconds);
+    turn(225); 
+    drive("forward",36);
+    wait(1,seconds);
+    turn(270);
+    drive("forward",24);
+    wait(500,msec);
+    turn(270);
+        wait(500,msec);
+    drive("forward",36);
+    wait(1,seconds);
+    turn(45);
+    wait(1,seconds);
+    drive("forward",67.882250994);
+        wait(500,msec);
+
+    turn(270);
+        wait(500,msec);
+
+    drive("forward",24);
+        wait(500,msec);
+
+    turn(90);
+        wait(500,msec);
+
+    drive("forward",36);
+        wait(500,msec);
+
+    turn(180);
+        wait(500,msec);
+
+    drive("forward",120);
+ 
+}

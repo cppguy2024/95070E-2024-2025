@@ -2,7 +2,83 @@
 #include "auton.h"
 #include <iostream>
 #include "robot-config.hpp"
+#include <cmath>
+#include <algorithm>
 
+void Odometry::update(double deltaLeft, double deltaRight) {
+    double deltaDistance = (deltaLeft + deltaRight) / 2.0;
+    x += deltaDistance * cos(theta);
+    y += deltaDistance * sin(theta);
+    theta += (deltaRight - deltaLeft) / wheelBase; // Update heading
+    theta = fmod(theta + 2 * M_PI, 2 * M_PI); // Normalize angle
+}
+
+double Odometry::getX() { return x; }
+double Odometry::getY() { return y; }
+double Odometry::getTheta() { return theta; }
+
+// PID Implementation
+PID::PID(double kP, double kI, double kD) 
+    : kP(kP), kI(kI), kD(kD), lastError(0), integral(0) {}
+
+double PID::compute(double setpoint, double actual) {
+    double error = setpoint - actual;
+    integral += error;
+
+    // Anti-windup
+    if (integral > integralLimit) integral = integralLimit;
+    if (integral < -integralLimit) integral = -integralLimit;
+
+    double derivative = error - lastError;
+    lastError = error;
+
+    return clamp(kP * error + kI * integral + kD * derivative, -maxSpeed, maxSpeed);
+}
+
+// Arc Movement Function
+void moveArc(double targetX, double targetY, double radius) {
+    
+    double targetAngle = atan2(targetY - odometry.getY(), targetX - odometry.getX());
+    double distanceToTarget = sqrt(pow(targetX - odometry.getX(), 2) + pow(targetY - odometry.getY(), 2));
+
+    while (distanceToTarget > tolerance) {
+        odometry.update(LeftDrive.position(rotationUnits::deg), RightDrive.position(rotationUnits::deg));
+        // Calculate errors
+        double errorX = targetX - odometry.getX();
+        double errorY = targetY - odometry.getY();
+        double errorTheta = targetAngle - odometry.getTheta();
+
+        // Calculate PID outputs
+        double outputX = pidX.compute(targetX, odometry.getX());
+        double outputY = pidY.compute(targetY, odometry.getY());
+        double outputTurn = pidTurn.compute(targetAngle, odometry.getTheta());
+
+        // Calculate speeds
+        double leftSpeed = outputY - outputX + outputTurn;
+        double rightSpeed = outputY + outputX - outputTurn;
+
+        // Set motor speeds
+        LeftDrive.spin(vex::forward, clamp(leftSpeed, -maxSpeed, maxSpeed), percent);
+        RightDrive.spin(vex::forward, clamp(rightSpeed, -maxSpeed, maxSpeed), percent);
+
+        // Update distance to target
+        distanceToTarget = sqrt(pow(targetX - odometry.getX(), 2) + pow(targetY - odometry.getY(), 2));
+        task::sleep(20);
+    }
+
+    LeftDrive.stop();
+    RightDrive.stop();
+}
+
+// Autonomous Function
+void autonomous() {
+    Inertial.calibrate(); // Calibrate the IMU
+    wait(2000, msec); // Wait for calibration to finish
+
+    // Example of moving in an arc
+    moveArc(100, 100, 50); // Move to (100, 100) with a radius of 50 inches
+
+}
 static void drivePID(double kp, double ki, double kd, double target) {
     double lefterror = target;
     double plefterror = lefterror;
@@ -44,7 +120,7 @@ static void drivePID(double kp, double ki, double kd, double target) {
             leftsign = 1;
         }
 
-        LeftDrive.spin(forward, lefttotal, pct);
+        LeftDrive.spin(vex::forward, lefttotal, pct);
 
         if((leftsaturation == 1) || (leftsign == 1 )) {
             lefti = 0;
@@ -72,7 +148,7 @@ static void drivePID(double kp, double ki, double kd, double target) {
             rightsign = 1;
         }
 
-        RightDrive.spin(forward, righttotal, pct);
+        RightDrive.spin(vex::forward, righttotal, pct);
 
         if((rightsaturation == 1) || (rightsign == 1 )) {
             righti = 0;
@@ -139,8 +215,8 @@ static void turnPID(double kp, double ki, double kd, double target) {
             sign = 1;
         }
         
-        LeftDrive.spin(forward, total, pct);
-        RightDrive.spin(reverse, total, pct);
+        LeftDrive.spin(vex::forward, total, pct);
+        RightDrive.spin(vex::reverse, total, pct);
 
         if((saturation == 1) && (sign == 1)) {
             i = 0;
@@ -183,7 +259,7 @@ void AWPRed() {
     Intake.setVelocity(99, pct);
     drive("reverse", 27.5);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
     drive("reverse", 2);
     turn(90);
     drive("forward", 24);
@@ -208,7 +284,7 @@ void AWPBlue() {
     Intake.setVelocity(99, pct);
     drive("reverse", 27.5);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
     drive("reverse", 2);
     turn(270);
     drive("forward", 24);
@@ -233,7 +309,7 @@ void Red() {
     Intake.setVelocity(99, pct);
     drive("reverse", 27.5);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
     drive("reverse", 3);
     turn(135);
     drive("forward", 19);
@@ -259,7 +335,7 @@ void Blue() {
     Intake.setVelocity(99, pct);
     drive("reverse", 27.5);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
     drive("reverse", 3);
     turn(225);
     drive("forward", 19);
@@ -287,10 +363,12 @@ void GoalRushRed() {
     turn(330);
     drive("reverse", 19);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
 }
 
 void GoalRushBlue() {
+
+    moveArc(50,10,30);
     P.set(false);
     D.set(false);
     Intake.setVelocity(99, pct);
@@ -298,24 +376,27 @@ void GoalRushBlue() {
     turn(30);
     drive("reverse", 19);
     P.set(true);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
 }
+
 void autonskills(){
+    Odometry::update;
+     
     P.set(false);
     D.set(false);
     Intake.setVelocity(99,pct);
-    Intake.spin(forward);
+    Intake.spin(vex::forward);
     wait(3,seconds);
     turn(225);
     drive("reverse",26.83281573);
     wait(1,seconds);
-    turn(225); 
+    turn(0); 
     drive("forward",36);
     wait(1,seconds);
     turn(270);
     drive("forward",24);
     wait(500,msec);
-    turn(270);
+    turn(0);
         wait(500,msec);
     drive("forward",36);
     wait(1,seconds);
@@ -324,21 +405,23 @@ void autonskills(){
     drive("forward",67.882250994);
         wait(500,msec);
 
-    turn(270);
+    turn(315);
         wait(500,msec);
 
     drive("forward",24);
         wait(500,msec);
 
-    turn(90);
+    turn(45);
         wait(500,msec);
 
     drive("forward",36);
         wait(500,msec);
 
-    turn(180);
+    turn(225);
         wait(500,msec);
 
     drive("forward",120);
+ 
+
  
 }

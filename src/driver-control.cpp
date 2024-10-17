@@ -107,6 +107,25 @@ static void MoveMogo() {
     }
 }
 
+static void MoveWallStake() {
+  int wallstakepressed;
+  WallStake.setVelocity(99, pct);
+  while(1){
+  if(Controller.ButtonUp.pressing()){
+    WallStake.spin(reverse);
+  }
+  else if(Controller.ButtonDown.pressing()){
+    WallStake.spin(forward);
+  }
+  else if(Controller.ButtonLeft.pressing()){
+    WallStake.spinTo(0,degrees);
+  }
+  else{
+    WallStake.stop();
+  }
+  }
+}
+
 void drivercontrol() {
     while(true){
       MoveDrivetrain();

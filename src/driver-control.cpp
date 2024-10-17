@@ -69,32 +69,18 @@ static void MoveIntake() {
     }
 }
 
+int doinker = 0;
 
-static void MoveDoinker(){
+static void MoveDoinker() {
   
   if(Controller.ButtonA.pressing()) {
-      D.set(false);
-    }
-  
-  if(Controller.ButtonB.pressing()) {
-      D.set(true);
-    }
+    D.set(false);
+  }
+
+  if(Controller.ButtonB.pressing()){
+    D.set(true);
+  }
 }
-
-/*static void MoveClaw() {
-    
-    Claw.setVelocity(100, pct);
-  
-    while(Controller.ButtonA.pressing()) {
-      Claw.spin(forward);
-    }
-
-    while(Controller.ButtonB.pressing()) {
-      Claw.spin(reverse);
-    }
-
-    Claw.stop();
-}*/
 
 static void MoveMogo() {
     
@@ -102,18 +88,51 @@ static void MoveMogo() {
       P.set(true);
     }
      
-    if(Controller.ButtonR1.pressing()) {
+    else if(Controller.ButtonR1.pressing()) {
       P.set(false);
     }
 }
 
+static void InitializeWallStake() {
+  WallStake.setPosition(0, deg);
+}
+
+
+static void MoveWallStake() {
+  int wallstakepressed;
+  WallStake.setVelocity(50, pct);
+  if(Controller.ButtonUp.pressing() || Controller.ButtonDown.pressing()) {
+    wallstakepressed = 1;
+  }
+  else {
+    wallstakepressed = 0;
+  }
+  if(0 <= WallStake.position(deg) && WallStake.position(deg) < 170) {
+    while(Controller.ButtonUp.pressing()) {
+      if(WallStake.position(deg) >= 170) {
+        WallStake.spin(reverse);
+      }
+      WallStake.spin(forward);
+    }
+
+    while(Controller.ButtonDown.pressing()) {
+      WallStake.spin(reverse);
+    }
+  }
+  while(wallstakepressed == 1) {
+    WallStake.stop();
+  }
+}
+
 void drivercontrol() {
+    InitializeWallStake();
     while(true){
       MoveDrivetrain();
       MoveIntake();
       MoveDoinker();
       //MoveClaw();
       MoveMogo();
+      MoveWallStake();
 
       wait(20, msec);
     }

@@ -3,19 +3,7 @@
 #include <iostream>
 #include "robot-config.hpp"
 
-static int getSign(double input){
-  if (input > 0){
-    return 1;
-  }
-  else if (input < 0){
-    return -1;
-  }
-  else{
-    return 0;
-  }
-}
-
-static void drivePID(double kp, double ki, double kd, double minspeed, double target) {
+static void drivePID(double kp, double ki, double kd, double tolerance, double target) {
     double lefterror = target;
     double plefterror = lefterror;
     double leftd = 0;
@@ -25,6 +13,7 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
     double lefttotal = 0;
     double leftsaturation = 0;
     double leftsign = 0;
+    double leftcounter = 0;
 
     double righterror = target;
     double prighterror = righterror;
@@ -35,16 +24,25 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
     double righttotal = 0;
     double rightsaturation = 0;
     double rightsign = 0;
+    double rightcounter = 0;
     
     LeftDrive.resetPosition();
     RightDrive.resetPosition();
     
-    while((fabs(lefterror) + fabs(righterror)) / 2 > 0.5) {
+    while((fabs(lefterror) + fabs(righterror)) / 2 > tolerance) {
         lefterror = target - LeftDrive.position(turns) * 3.25 * M_PI * 0.75;
-        leftd = (lefterror - plefterror) * 50;
+        leftd = (lefterror - plefterror) * 47.5;
         lefttotal = lefterror * kp + lefti * ki - leftd * kd;
         
         
+        if((lefterror - plefterror) < 0.075) {
+            leftcounter += 50;
+        }
+        if(leftcounter == 1250) {
+            lefttotal = 0;
+        }
+
+
         if(plefttotal == lefttotal) {
             leftsaturation = 0;
         }
@@ -58,13 +56,9 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
             leftsign = 1;
         }
 
-        if(fabs(lefttotal) < minspeed) {
-            LeftDrive.spin(forward, getSign(lefterror) * minspeed, pct);
-        }
-        else {
-            LeftDrive.spin(forward, lefttotal, pct);
-        }
-
+        LeftDrive.spin(forward, lefttotal, pct);
+        
+        
         
         if((leftsaturation == 1) || (leftsign == 1 )) {
             lefti = 0;
@@ -80,13 +74,23 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
         righterror = target - RightDrive.position(turns) * 3.25 * M_PI * 0.75;
         rightd = (righterror - prighterror) * 50;
         righttotal = righterror * kp + righti * ki - rightd * kd;
+        
+        
+        if((righterror - prighterror) < 0.075) {
+            rightcounter += 50;
+        }
+        if(rightcounter == 1250) {
+            righttotal = 0;
+        }
+        
+        
         if(prighttotal == righttotal) {
             rightsaturation = 0;
         }
         else {
             rightsaturation = 1;
         }
-        if((plefttotal < 0) && (lefttotal < 0)) {
+        if((prighttotal < 0) && (righttotal < 0)) {
             rightsign = -1;
         }
         else {
@@ -94,12 +98,7 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
         }
 
         
-        if(fabs(righttotal) < minspeed) {
-            RightDrive.spin(forward, getSign(righterror) * minspeed, pct);
-        }
-        else {
-            RightDrive.spin(forward, righttotal, pct);
-        }
+        RightDrive.spin(forward, righttotal, pct);
 
         
         if((rightsaturation == 1) || (rightsign == 1 )) {
@@ -111,6 +110,7 @@ static void drivePID(double kp, double ki, double kd, double minspeed, double ta
         if(fabs(righterror) < 10) {
                 realrighti += righterror / 50;
         }
+
 
         plefterror = lefterror;
         prighterror = righterror;
@@ -139,7 +139,7 @@ static double getError(double target) {
     }
 }
 
-static void turnPID(double kp, double ki, double kd, double minspeed, double target) {
+static void turnPID(double kp, double ki, double kd, double tolerance, double target) {
     double error = getError(target);
     double perror = error;
     double d = 0;
@@ -149,12 +149,20 @@ static void turnPID(double kp, double ki, double kd, double minspeed, double tar
     double total = 0;
     double saturation = 0;
     double sign = 0;
+    double counter = 0;
     //Bohan is the sigmest rookie this year asdfasdfasdfasdfasdfasdfasdf
-    while(fabs(error) > 2 || d > 3) {
+    while(fabs(error) > tolerance || d > 3) {
         error = getError(target);
         d = (error - perror) * 50;
         ptotal = total;
         total = error * kp + i * ki - d * kd;
+
+        if((error - perror) < 0.025) {
+            counter += 50;
+        }
+        if(counter == 1250) {
+            total = 0;
+        }
         
         
         if(ptotal == total) {
@@ -171,14 +179,8 @@ static void turnPID(double kp, double ki, double kd, double minspeed, double tar
         }
         
         
-        if(fabs(total) < minspeed) {
-            LeftDrive.spin(forward, getSign(error) * minspeed, pct);
-            RightDrive.spin(forward, getSign(error) * minspeed, pct);
-        }
-        else {
-            LeftDrive.spin(forward, total, pct);
-            RightDrive.spin(forward, total, pct);
-        }
+        LeftDrive.spin(forward, total, pct);
+        RightDrive.spin(reverse, total, pct);
 
         
         if((saturation == 1) && (sign == 1)) {
@@ -204,145 +206,83 @@ static void turnPID(double kp, double ki, double kd, double minspeed, double tar
 
 static void drive(std::string direction, double target) {
     if(direction == "forward") {            
-        drivePID(0, 0, 0, 40, target);
+        drivePID(2.95, 0.01, 0.05, 0.5, target);
     }
 
     if(direction == "reverse") {
-        drivePID(0, 0, 0, 40, -target);
+        drivePID(2.95, 0.01, 0.05, 0.5, -target);
+    }
+}
+
+static void slowdrive(std::string direction, double target) {
+    if(direction == "forward") {            
+        drivePID(1.97, 0.01, 0.05, 0.75, target);
+    }
+
+    if(direction == "reverse") {
+        drivePID(1.97, 0.01, 0.05, 0.75, -target);
+    }
+}
+
+static void progdrive(std::string direction, double target) {
+    if(direction == "forward") {            
+        drivePID(1.5, 0.01, 0.05, 0.75, target);
+    }
+
+    if(direction == "reverse") {
+        drivePID(1.5, 0.01, 0.05, 0.75, -target);
     }
 }
 
 static void turn(double target) {
-    turnPID(0, 0, 0, 15, target);
+    turnPID(0.34, 0.001, 0.003, 2, target);
 }
 
-/*void AWPRed() {
-    P.set(false);
-    D.set(false);
-    Intake.setVelocity(99, pct);
-    drive("reverse", 27.5);
-    P.set(true);
-    Intake.spin(forward);
-    drive("reverse", 2);
-    turn(90);
-    drive("forward", 24);
-    turn(0);
-    P.set(false);
-    drive("forward", 24);
-    turn(270);
-    drive("forward", 87);
-    turn(330);
-    drive("reverse", 22);
-    P.set(true);
-    turn(285);
-    drive("forward", 22);
-    wait(1000, msec);
-    turn(80);
-    drive("forward", 34);
-}
-
-void AWPBlue() {
-    P.set(false);
-    D.set(false);
-    Intake.setVelocity(99, pct);
-    drive("reverse", 27.5);
-    P.set(true);
-    Intake.spin(forward);
-    drive("reverse", 2);
-    turn(270);
-    drive("forward", 24);
-    turn(0);
-    P.set(false);
-    drive("forward", 24);
-    turn(90);
-    drive("forward", 87);
-    turn(30);
-    drive("reverse", 22);
-    P.set(true);
-    turn(75);
-    drive("forward", 22);
-    wait(1000, msec);
-    turn(280);
-    drive("forward", 34);
-}
 
 void Red() {
     P.set(false);
     D.set(false);
     Intake.setVelocity(99, pct);
-    drive("reverse", 27.5);
+    slowdrive("reverse", 29.5);
     P.set(true);
+    wait(50, msec);
     Intake.spin(forward);
-    drive("reverse", 3);
-    turn(120);
-    drive("forward", 19);
-    turn(105);
-    drive("forward", 8.25);
+    wait(500, msec);
+    drive("reverse", 1);
+    turn(90);
+    drive("forward", 24);
+    turn(197);
+    drive("forward", 11.5);
     wait(1000, msec);
-    drive("reverse", 24);
-    turn(67.5);
-    drive("forward", 20);
-    turn(305);
-    drive("forward", 33);
-    D.set(true);
-    drive("reverse", 15);
-    D.set(false);
-    turn(295);
-    drive("forward", 15);
-    wait(4000, msec);
+    turn(110);
+    drive("forward", 6.5);
+    wait(2000, msec);
+    turn(100);
+    drive("reverse", 40);
     Intake.stop();
 }
 
 void Blue() {
-    P.set(false);
-    D.set(false);
-    Intake.setVelocity(99, pct);
-    drive("reverse", 27.5);
     P.set(true);
-    Intake.spin(forward);
-    drive("reverse", 3);
-    turn(230);
-    drive("forward", 19);
-    turn(255);
-    drive("forward", 8.25);
     wait(1000, msec);
-    drive("reverse", 24);
-    turn(287.5);
-    drive("forward", 20);
-    wait(2000, msec);
-    Intake.stop();
-    /*turn(55);
-    drive("forward", 33);
-    D.set(true);
-    drive("reverse", 15);
-    D.set(false);
-    turn(65);
-    drive("forward", 15);
-    wait(4000, msec);
-    Intake.stop();
+    turn(180);
 }
+
 
 void GoalRushRed() {
     P.set(false);
     D.set(false);
-    Intake.setVelocity(99, pct);
-    drive("reverse", 30);
-    turn(330);
-    drive("reverse", 19);
+    drive("reverse", 32);
+    turn(315);
+    drive("reverse", 12);
     P.set(true);
-    Intake.spin(forward);
 }
 
+
 void GoalRushBlue() {
-    P.set(false);
-    D.set(false);
-    Intake.setVelocity(99, pct);
-    drive("reverse", 30);
-    turn(30);
-    drive("reverse", 19); 
-    P.set(true);
-    Intake.spin(forward);
+
 }
+
 
 void AutonSkills() {
     P.set(false);
@@ -352,7 +292,7 @@ void AutonSkills() {
     wait(1000, msec);
     drive("forward", 13.5);
     turn(90);
-    drive("reverse", 23);
+    progdrive("reverse", 23);
     P.set(true);
     wait(1000, msec);
     turn(270);
@@ -369,49 +309,19 @@ void AutonSkills() {
     drive("forward", 8.75);
     wait(1000, msec);
     turn(270);
-    drive("reverse", 18.25);
-    wait(500, msec);
-    drive("reverse", 18.25);
-    wait(500, msec);
-    drive("reverse", 18.25);
-    wait(500, msec);
-    drive("reverse", 20.25);
+    progdrive("reverse", 37.5);
+    wait(200, msec);
+    slowdrive("reverse", 37.5);
     wait(1000, msec);
     Intake.spin(forward);
     P.set(true);
     turn(90);
-    drive("forward", 18);
+    drive("forward", 20);
     wait(1000, msec);
     drive("forward", 14);
     turn(325);
-    drive("reverse", 14);
+    drive("reverse", 16);
     P.set(false);
-}*/
-
-void AWPRed() {
-
-}
-
-void AWPBlue() {
-
-}
-
-void Red() {
-
-}
-
-void Blue() {
-
-}
-
-void GoalRushRed() {
-
-}
-
-void GoalRushBlue() {
-
-}
-
-void AutonSkills() {
-
+    wait(500, msec);
+    drive("forward", 20);
 }

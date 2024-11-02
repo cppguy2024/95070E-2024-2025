@@ -1,8 +1,9 @@
 #include "vex.h"
 #include <iostream>
 #include <cstdlib>
-using namespace vex;
 #include "robot-config.hpp"
+
+using namespace vex;
 
 static void MoveDrivetrain() {
     double TempSpeed = 1;
@@ -46,11 +47,11 @@ static void MoveIntake() {
     }
 
     if(Speed == 0) {
-      IntakeSpeed = 35;
+      IntakeSpeed = 99;
     }
     
     else {
-      IntakeSpeed = 80;
+      IntakeSpeed = 35;
     }
     
     Intake1.setVelocity(99, pct);
@@ -68,8 +69,6 @@ static void MoveIntake() {
       Intake.stop();
     }
 }
-
-int doinker = 0;
 
 static void MoveDoinker() {
   
@@ -93,44 +92,65 @@ static void MoveMogo() {
     }
 }
 
+
 static void InitializeWallStake() {
-  WallStake.setPosition(0, deg);
+  Rotation.setPosition(0, deg);
 }
 
 
-static void MoveWallStake() {
-  int wallstakepressed;
-  WallStake.setVelocity(50, pct);
-  if(Controller.ButtonUp.pressing() || Controller.ButtonDown.pressing()) {
-    wallstakepressed = 1;
-  }
-  else {
-    wallstakepressed = 0;
-  }
-  if(0 <= WallStake.position(deg) && WallStake.position(deg) < 170) {
-    while(Controller.ButtonUp.pressing()) {
-      if(WallStake.position(deg) >= 170) {
-        WallStake.spin(reverse);
-      }
-      WallStake.spin(forward);
-    }
+/*static void MoveWallStake() {
+  
+  WallStake.setVelocity(99, pct);
+  double position = Rotation.angle(deg);
 
-    while(Controller.ButtonDown.pressing()) {
-      WallStake.spin(reverse);
-    }
+
+  Controller.Screen.setCursor(1, 1);
+  Controller.Screen.print(Rotation.angle(deg));
+  
+  if(Controller.ButtonUp.pressing()) {
+    WallStake.setVelocity(99, pct);
+    WallStake.spin(forward);
   }
-  while(wallstakepressed == 1) {
+  
+  
+  else if(Controller.ButtonDown.pressing()) {
+    WallStake.setVelocity(99, pct);
+    WallStake.spin(reverse);
+  }
+
+
+  else {
+    WallStake.stop(brake);
+  }
+}*/
+
+static void MoveWallStake() {
+  WallStake.setVelocity(50, pct);
+  
+  if(Controller.ButtonUp.pressing()) {
+    WallStake.spin(forward);
+  }
+
+
+  else if(Controller.ButtonDown.pressing()) {
+    WallStake.spin(reverse);
+  }
+
+
+  else {
     WallStake.stop();
   }
 }
 
+
+
+
 void drivercontrol() {
     InitializeWallStake();
-    while(true){
+    while(true) {
       MoveDrivetrain();
       MoveIntake();
       MoveDoinker();
-      //MoveClaw();
       MoveMogo();
       MoveWallStake();
 

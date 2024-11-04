@@ -21,7 +21,8 @@ extern motor Intake1;
 extern motor Intake2;
 extern motor_group Intake;
 
-//extern motor Claw;
+extern rotation Rotation;
+extern motor WallStake;
 
 extern inertial Inertial;
 

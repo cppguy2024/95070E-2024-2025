@@ -125,7 +125,7 @@ static void InitializeWallStake() {
 }*/
 
 static void MoveWallStake() {
-  WallStake.setVelocity(50, pct);
+  WallStake.setVelocity(100, pct);
   
   if(Controller.ButtonUp.pressing()) {
     WallStake.spin(forward);

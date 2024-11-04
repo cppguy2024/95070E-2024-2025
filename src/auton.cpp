@@ -226,15 +226,19 @@ static void slowdrive(std::string direction, double target) {
 
 static void progdrive(std::string direction, double target) {
     if(direction == "forward") {            
-        drivePID(1.5, 0.01, 0.05, 0.75, target);
+        drivePID(1.5, 0.01, 0.05, 0.5, target);
     }
 
     if(direction == "reverse") {
-        drivePID(1.5, 0.01, 0.05, 0.75, -target);
+        drivePID(1.5, 0.01, 0.05, 0.5, -target);
     }
 }
 
 static void turn(double target) {
+    turnPID(0.38, 0.001, 0.003, 2, target);
+}
+
+static void mogoturn(double target) {
     turnPID(0.34, 0.001, 0.003, 2, target);
 }
 
@@ -249,50 +253,102 @@ void Red() {
     Intake.spin(forward);
     wait(500, msec);
     drive("reverse", 1);
-    turn(90);
+    mogoturn(90);
     drive("forward", 24);
-    turn(197);
+    mogoturn(197);
     drive("forward", 11.5);
     wait(1000, msec);
-    turn(110);
+    mogoturn(110);
     drive("forward", 6.5);
     wait(2000, msec);
-    turn(100);
+    mogoturn(100);
     drive("reverse", 40);
     Intake.stop();
 }
 
 void Blue() {
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99, pct);
+    slowdrive("reverse", 29.5);
     P.set(true);
+    wait(50, msec);
+    Intake.spin(forward);
+    wait(500, msec);
+    drive("reverse", 1);
+    mogoturn(270);
+    drive("forward", 24);
+    mogoturn(163);
+    drive("forward", 11.5);
     wait(1000, msec);
-    turn(180);
+    mogoturn(250);
+    drive("forward", 6.5);
+    wait(2000, msec);
+    mogoturn(260);
+    drive("reverse", 40);
+    Intake.stop();
 }
-
 
 void GoalRushRed() {
     P.set(false);
     D.set(false);
-    drive("reverse", 32);
-    turn(315);
-    drive("reverse", 12);
+    drive("reverse", 34.5);
+    mogoturn(330);
+    drive("reverse", 15);
     P.set(true);
+    Intake.setVelocity(99, pct);
+    Intake.spin(forward);
+    mogoturn(10);
+    Intake.stop();
+    Intake1.spin(forward);
+    drive("forward", 21);
+    P.set(false);
+    mogoturn(280);
+    slowdrive("reverse", 25);
+    Intake1.stop();
+    P.set(true);
+    Intake2.spin(forward);
+    wait(1000,msec);
+    /*mogoturn(330);
+    slowdrive("reverse",14);*/
+    Intake2.stop();
 }
 
-
 void GoalRushBlue() {
-
+    P.set(false);
+    D.set(false);
+    drive("reverse", 34.5);
+    mogoturn(30);
+    drive("reverse", 15);
+    P.set(true);
+    Intake.setVelocity(99, pct);
+    Intake.spin(forward);
+    mogoturn(350);
+    Intake.stop();
+    Intake1.spin(forward);
+    drive("forward", 21);
+    P.set(false);
+    mogoturn(80);
+    slowdrive("reverse", 25);
+    Intake1.stop();
+    P.set(true);
+    Intake2.spin(forward);
+    wait(1000,msec);
+    /*mogoturn(30);
+    slowdrive("reverse", 14);*/
+    Intake2.stop();
 }
 
 
 void AutonSkills() {
-    P.set(false);
+    /*P.set(false);
     D.set(false);
     Intake.setVelocity(99,pct);
     Intake.spin(forward);
     wait(1000, msec);
     drive("forward", 13.5);
     turn(90);
-    progdrive("reverse", 23);
+    slowdrive("reverse", 23);
     P.set(true);
     wait(1000, msec);
     turn(270);
@@ -309,7 +365,7 @@ void AutonSkills() {
     drive("forward", 8.75);
     wait(1000, msec);
     turn(270);
-    progdrive("reverse", 37.5);
+    slowdrive("reverse", 37.5);
     wait(200, msec);
     slowdrive("reverse", 37.5);
     wait(1000, msec);
@@ -323,5 +379,53 @@ void AutonSkills() {
     drive("reverse", 16);
     P.set(false);
     wait(500, msec);
+    drive("forward", 20);*/
+    P.set(false);
+    D.set(false);
+    Intake.setVelocity(99, pct);
+    Intake.spin(forward);
+    wait(1000, msec);
+    drive("forward", 13.5);
+    turn(90);
+    progdrive("reverse", 23);
+    P.set(true);
+    wait(1000, msec);
+    turn(270);
+    drive("forward", 18);
+    wait(1000, msec);
+    drive("forward", 14);
+    wait(1000, msec);
+    drive("reverse", 10);
+    turn(180);
+    drive("forward", 10);
+    wait(1000, msec);
+    drive("reverse", 10);
+    turn(45);
+    drive("reverse", 17);
+    wait(1000, msec);
+    Intake.spin(reverse);
+    wait(250, msec);
+    Intake.stop();
+    P.set(false);
+    drive("forward", 9.75);
+    wait(1000, msec);
+    turn(270);
+    progdrive("reverse", 37.5);
+    wait(200, msec);
+    progdrive("reverse", 37.5);
+    wait(1000, msec);
+    Intake.spin(forward);
+    P.set(true);
+    turn(90);
     drive("forward", 20);
+    wait(1000, msec);
+    drive("forward", 10);
+    turn(325);
+    drive("reverse", 14);
+    P.set(false);
+    turn(315);
+    drive("reverse", 15);
+    wait(1000,msec);
+    drive("forward",135);
+    turn(45);
 }

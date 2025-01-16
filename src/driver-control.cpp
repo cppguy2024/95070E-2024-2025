@@ -31,37 +31,37 @@ static void MoveDrivetrain() {
 
 }
 
-int Speed = 0;
+int Intakespin = 0;
 
 static void MoveIntake() {
     
     int IntakeSpeed;
-
-    if(Controller.ButtonY.pressing()) {
-      if(Speed == 1) {
-      Speed = 0;
-    }
+    
+    Intake.setVelocity(99, pct);
+    
+    if(Controller.ButtonL1.pressing()) {
+      if(Intakespin%2 == 1) {
+        Intake.spin(forward);
+        wait(150, msec);
+      }
       else {
-        Speed = 1;
+        Intake.stop();
+        wait(150, msec);
       }
     }
 
     if(Speed == 0) {
-      IntakeSpeed = 99;
+      IntakeSpeed = 35;
     }
     
     else {
-      IntakeSpeed = 35;
+      IntakeSpeed = 80;
     }
     
     Intake1.setVelocity(99, pct);
     Intake2.setVelocity(IntakeSpeed, pct);
     
     if(Controller.ButtonL2.pressing()) {
-      Intake.spin(forward);
-    }
-    
-    if(Controller.ButtonL1.pressing()) {
       Intake.spin(reverse);
     }
 
@@ -70,16 +70,32 @@ static void MoveIntake() {
     }
 }
 
-static void MoveDoinker() {
+
+static void MoveDoinker(){
   
   if(Controller.ButtonA.pressing()) {
-    D.set(false);
-  }
-
-  if(Controller.ButtonB.pressing()){
-    D.set(true);
-  }
+      D.set(false);
+    }
+  
+  if(Controller.ButtonB.pressing()) {
+      D.set(true);
+    }
 }
+
+/*static void MoveClaw() {
+    
+    Claw.setVelocity(100, pct);
+  
+    while(Controller.ButtonA.pressing()) {
+      Claw.spin(forward);
+    }
+
+    while(Controller.ButtonB.pressing()) {
+      Claw.spin(reverse);
+    }
+
+    Claw.stop();
+}*/
 
 static void MoveMogo() {
     
@@ -87,7 +103,7 @@ static void MoveMogo() {
       P.set(true);
     }
      
-    else if(Controller.ButtonR1.pressing()) {
+    if(Controller.ButtonR1.pressing()) {
       P.set(false);
     }
 }
@@ -146,13 +162,13 @@ static void MoveWallStake() {
 
 
 void drivercontrol() {
-    InitializeWallStake();
-    while(true) {
+    while(true){
       MoveDrivetrain();
       MoveIntake();
-      MoveDoinker();
       MoveMogo();
-      MoveWallStake();
+      MoveDoinker();
+      //MoveClaw();
+      MoveMogo();
 
       wait(20, msec);
     }

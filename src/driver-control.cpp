@@ -30,97 +30,100 @@ static void MoveDrivetrain() {
 
 }
 
-int Speed = 0;
-
+int intake = 0;
 static void MoveIntake() {
+    Intake.setVelocity(80, pct);
+    if(Controller.ButtonL1.pressing()) {
+        intake += 1;
+
+        if(intake%2 == 1) {
+            Intake.spin(forward);
+        }
+
+        if(intake%2 == 0) {
+            Intake.stop();
+        }
+        wait(150, msec);
+    }
     
-    int IntakeSpeed;
+    if(Controller.ButtonL2.pressing()) {
+        Intake.spin(reverse);
+    }
+}
 
-    if(Controller.ButtonY.pressing()) {
-      if(Speed == 1) {
-      Speed = 0;
+
+int doinker = 0;
+static void MoveDoinker(){
+  if(Controller.ButtonR1.pressing()) {
+    doinker += 1;
+    if(doinker%2 == 1) {
+        D.set(true);
     }
 
-      else if(Speed == 0) {
-        Speed = 1;
-      }
+    if(doinker%2 == 0) {
+        D.set(false);
+    }
+    wait(150, msec);
+  }
+}
 
-      else {
-        Speed = 1;
-      }
+
+
+int mogo = 0;
+static void MoveMogo() {
+    if(Controller.ButtonR2.pressing()) {
+        mogo += 1;
+        if(mogo%2 == 1) {
+            P.set(true);
+            wait(150, msec);
+        }
+
+        if(mogo%2 == 0) {
+            P.set(false);
+            wait(150, msec);
+        }
+    }
+}
+
+static void InitializeWallStake() {
+  Rotation.setPosition(0, deg);
+}
+
+static void MoveWallStake() {
+  double position = Rotation.angle(deg);
+  double error = 20 - position;
+  
+    if(Controller.ButtonUp.pressing()) {
+        WallStake.setVelocity(70, pct);
+        WallStake.spin(forward);
+    }
+  
+    else if(Controller.ButtonDown.pressing()) {
+        WallStake.setVelocity(70, pct);
+        WallStake.spin(reverse);
     }
 
-    if(Speed == 1) {
-      IntakeSpeed = 70;
-    }
-
-    else if(Speed == 0) {
-      IntakeSpeed = 35;
+    else if(Controller.ButtonB.pressing()) {
+        if(fabs(error) > 3) {
+            WallStake.spin(forward, 0.2 * error, pct);
+        }
     }
 
     else {
-      IntakeSpeed = 70;
-    }
-    
-    Intake1.setVelocity(99, pct);
-    Intake2.setVelocity(IntakeSpeed, pct);
-    
-    if(Controller.ButtonL2.pressing()) {
-      Intake.spin(forward);
-    }
-    
-    if(Controller.ButtonL1.pressing()) {
-      Intake.spin(reverse);
-    }
-
-    if(Controller.ButtonX.pressing()) {
-      Intake.stop();
+    WallStake.stop();
     }
 }
 
-
-static void doinker(){
-  if(Controller.ButtonA.pressing()) {
-      Doinker.set(true);
-    }
-  if(Controller.ButtonB.pressing()) {
-      Doinker.set(false);
-    }
-}
-
-/*static void MoveClaw() {
-    
-    Claw.setVelocity(100, pct);
-  
-    while(Controller.ButtonA.pressing()) {
-      Claw.spin(forward);
-    }
-
-    while(Controller.ButtonB.pressing()) {
-      Claw.spin(reverse);
-    }
-
-    Claw.stop();
-}*/
-
-static void MoveMogo() {
-    
-    if(Controller.ButtonR2.pressing()) {
-      P.set(true);
-    }
-     
-    if(Controller.ButtonR1.pressing()) {
-      P.set(false);
-    }
-}
 
 void drivercontrol() {
+    InitializeWallStake();
+    Intake.setVelocity(99, pct);
     while(true){
       MoveDrivetrain();
       MoveIntake();
-      //MoveClaw();
+      MoveDoinker();
       MoveMogo();
-      doinker();
+      MoveWallStake();
 
       wait(20, msec);
     }

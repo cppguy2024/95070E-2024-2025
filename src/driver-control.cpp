@@ -1,9 +1,8 @@
 #include "vex.h"
 #include <iostream>
 #include <cstdlib>
-#include "robot-config.hpp"
-
 using namespace vex;
+#include "robot-config.hpp"
 
 static void MoveDrivetrain() {
     double TempSpeed = 1;
@@ -31,144 +30,100 @@ static void MoveDrivetrain() {
 
 }
 
-int Intakespin = 0;
-
+int intake = 0;
 static void MoveIntake() {
-    
-    int IntakeSpeed;
-    
-    Intake.setVelocity(99, pct);
-    
+    Intake.setVelocity(80, pct);
     if(Controller.ButtonL1.pressing()) {
-      if(Intakespin%2 == 1) {
-        Intake.spin(forward);
-        wait(150, msec);
-      }
-      else {
-        Intake.stop();
-        wait(150, msec);
-      }
-    }
+        intake += 1;
 
-    if(Speed == 0) {
-      IntakeSpeed = 35;
+        if(intake%2 == 1) {
+            Intake.spin(forward);
+        }
+
+        if(intake%2 == 0) {
+            Intake.stop();
+        }
+        wait(150, msec);
     }
-    
-    else {
-      IntakeSpeed = 80;
-    }
-    
-    Intake1.setVelocity(99, pct);
-    Intake2.setVelocity(IntakeSpeed, pct);
     
     if(Controller.ButtonL2.pressing()) {
-      Intake.spin(reverse);
-    }
-
-    if(Controller.ButtonX.pressing()) {
-      Intake.stop();
+        Intake.spin(reverse);
     }
 }
 
 
+int doinker = 0;
 static void MoveDoinker(){
-  
-  if(Controller.ButtonA.pressing()) {
-      D.set(false);
+  if(Controller.ButtonR1.pressing()) {
+    doinker += 1;
+    if(doinker%2 == 1) {
+        D.set(true);
     }
-  
-  if(Controller.ButtonB.pressing()) {
-      D.set(true);
+
+    if(doinker%2 == 0) {
+        D.set(false);
     }
+    wait(150, msec);
+  }
 }
 
-/*static void MoveClaw() {
-    
-    Claw.setVelocity(100, pct);
-  
-    while(Controller.ButtonA.pressing()) {
-      Claw.spin(forward);
-    }
 
-    while(Controller.ButtonB.pressing()) {
-      Claw.spin(reverse);
-    }
 
-    Claw.stop();
-}*/
-
+int mogo = 0;
 static void MoveMogo() {
-    
     if(Controller.ButtonR2.pressing()) {
-      P.set(true);
-    }
-     
-    if(Controller.ButtonR1.pressing()) {
-      P.set(false);
+        mogo += 1;
+        if(mogo%2 == 1) {
+            P.set(true);
+            wait(150, msec);
+        }
+
+        if(mogo%2 == 0) {
+            P.set(false);
+            wait(150, msec);
+        }
     }
 }
-
 
 static void InitializeWallStake() {
   Rotation.setPosition(0, deg);
 }
 
-
-/*static void MoveWallStake() {
-  
-  WallStake.setVelocity(99, pct);
-  double position = Rotation.angle(deg);
-
-
-  Controller.Screen.setCursor(1, 1);
-  Controller.Screen.print(Rotation.angle(deg));
-  
-  if(Controller.ButtonUp.pressing()) {
-    WallStake.setVelocity(99, pct);
-    WallStake.spin(forward);
-  }
-  
-  
-  else if(Controller.ButtonDown.pressing()) {
-    WallStake.setVelocity(99, pct);
-    WallStake.spin(reverse);
-  }
-
-
-  else {
-    WallStake.stop(brake);
-  }
-}*/
-
 static void MoveWallStake() {
-  WallStake.setVelocity(100, pct);
+  double position = Rotation.angle(deg);
+  double error = 20 - position;
   
-  if(Controller.ButtonUp.pressing()) {
-    WallStake.spin(forward);
-  }
+    if(Controller.ButtonUp.pressing()) {
+        WallStake.setVelocity(70, pct);
+        WallStake.spin(forward);
+    }
+  
+    else if(Controller.ButtonDown.pressing()) {
+        WallStake.setVelocity(70, pct);
+        WallStake.spin(reverse);
+    }
 
+    else if(Controller.ButtonB.pressing()) {
+        if(fabs(error) > 3) {
+            WallStake.spin(forward, 0.2 * error, pct);
+        }
+    }
 
-  else if(Controller.ButtonDown.pressing()) {
-    WallStake.spin(reverse);
-  }
-
-
-  else {
+    else {
     WallStake.stop();
-  }
+    }
 }
 
 
-
-
 void drivercontrol() {
+    InitializeWallStake();
+    Intake.setVelocity(99, pct);
     while(true){
       MoveDrivetrain();
       MoveIntake();
-      MoveMogo();
       MoveDoinker();
-      //MoveClaw();
       MoveMogo();
+      MoveWallStake();
 
       wait(20, msec);
     }

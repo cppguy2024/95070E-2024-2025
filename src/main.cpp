@@ -8,6 +8,7 @@ using namespace vex;
 using signature = vision::signature;
 using code = vision::code;
 
+
 competition Competition;
 bool inauton = false;
 
@@ -16,11 +17,11 @@ void vexcodeInit() {
 
 }
 
-int autons = 4;
+int autons = 5;
 int displayautons = 0;
 
 void select(){
-  while(true) {
+  while(1) {
     if (Controller.ButtonRight.pressing()) {
       displayautons++;
     }
@@ -75,6 +76,12 @@ void select(){
         Controller.Screen.print("Blue");
     }
 
+    if (displayautons == 5){
+        Controller.Screen.clearScreen();
+        Controller.Screen.setCursor(1, 1);
+        Controller.Screen.print("AutonSkills");
+    }
+
   }
 }
 
@@ -82,8 +89,7 @@ void pre_auton(void) {
   
   select();
   vexcodeInit();
-  Inertial.calibrate();
-  wait(3000, msec);
+
 }
 
 void autonomous(void) {
@@ -105,19 +111,23 @@ void autonomous(void) {
   if(displayautons == 4) {
     Blue();
   }
+
+  if(displayautons == 5) {
+    AutonSkills();
+  }
   
   inauton=false;
 
 }
 
 int main() {
-  
   Competition.drivercontrol(drivercontrol);
   Competition.autonomous(autonomous);
 
+  
   pre_auton();
   
-  while(true) {
+  while(1) {
     wait(20, msec);
   }
   void vexcodeInit(void);

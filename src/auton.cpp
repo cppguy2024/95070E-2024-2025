@@ -3,88 +3,6 @@
 #include <iostream>
 #include "robot-config.hpp"
 
-/*void drivePID(double k, double taui, double taud, double tolerance, double target) {
-    double setpoint = target;
-    double leftprocessvalue = LeftDrive.position(turns) * M_PI * 3.25 * 0.75;
-    double rightprocessvalue = RightDrive.position(turns) * M_PI * 3.25 * 0.75;
-    
-    double plefterror = 0;
-    double lefterror = 0;
-    double leftreset = 0;
-    double lefttotal = 0;
-
-    double prighterror = 0;
-    double righterror = 0;
-    double rightreset = 0;
-    double righttotal = 0;
-
-    while(((fabs(lefterror) + fabs(righterror))/2) > tolerance) {
-        lefterror = setpoint - leftprocessvalue;
-        righterror = setpoint - rightprocessvalue;
-        
-        leftreset += ((k/taui) * lefterror) * 50;
-        rightreset += ((k/taui) * righterror) * 50;
-
-        lefttotal = k * lefterror + leftreset + ((plefterror - lefterror) * (k/taud));
-        righttotal = k * righterror + rightreset + ((prighterror - righterror) * (k/taud));
-
-        LeftDrive.spin(forward, lefttotal, pct);
-        RightDrive.spin(forward, righttotal, pct);
-
-        plefterror = lefterror;
-        prighterror = righterror;
-
-        wait(20, msec);
-    }
-
-    LeftDrive.stop(brake);
-    RightDrive.stop(brake);
-
-    wait(100, msec);
-}
-
-static double getError(double target) {
-    if((std::max(target, Inertial.heading()) - std::min(target, Inertial.heading())) > 180) {
-        if(std::min(target, Inertial.heading()) == target) {
-            return (360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading()));
-        }
-        else {
-            return -(360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading()));
-        }
-    }
-    else {
-        return (target - Inertial.heading());
-    }
-}
-
-static void turnPID(double k, double taui, double taud, double tolerance, double target) {
-    double setpoint = target;
-    double processvalue = target - getError(target);
-
-    double perror = 0;
-    double error = 0;
-    double reset = 0;
-    double total = 0;
-
-    while(error > tolerance) {
-        error = setpoint - processvalue;
-        reset += ((k/taui) * error) * 50;
-        total = k * error + reset + ((perror - error) * (k/taud));
-
-        LeftDrive.spin(forward, total, pct);
-        RightDrive.spin(reverse, total, pct);
-
-        perror = error;
-
-        wait(20, msec);
-    }
-
-    LeftDrive.stop(brake);
-    RightDrive.stop(brake);
-
-    wait(100, msec);
-}*/
-
 static void drivePID(double kp, double ki, double kd, double target) {
     double lefterror = target;
     double plefterror = lefterror;
@@ -194,7 +112,7 @@ static double geterror(double target) {
     }
 }
 
-static void turnPID(double kp, double ki, double kd, double target) {
+static void turnPID(double kp, double ki, double kd, double tolerance, double target) {
     double error = geterror(target);
     double perror = error;
     double d = 0;
@@ -205,7 +123,7 @@ static void turnPID(double kp, double ki, double kd, double target) {
     double saturation = 0;
     double sign = 0;
     //Bohan is the sigmest rookie this year asdfasdfasdfasdfasdfasdfasdf
-    while(fabs(error) > 1 || (d > 3)) {
+    while(fabs(error) > tolerance || (d > 3)) {
         error = geterror(target);
         d = (error - perror) * 40;
         ptotal = total;
@@ -247,6 +165,16 @@ static void turnPID(double kp, double ki, double kd, double target) {
     wait(100, msec);
 }
 
+static void ramdrive(std::string direction, double target) {
+    if(direction == "forward") {            
+        drivePID(2.5, 0.001, 0.75, target);
+    }
+
+    if(direction == "reverse") {
+        drivePID(2.5, 0.001, 0.75, -target);
+    }
+}
+
 static void drive(std::string direction, double target) {
     if(direction == "forward") {            
         drivePID(1.8, 0.001, 0.75, target);
@@ -257,16 +185,76 @@ static void drive(std::string direction, double target) {
     }
 }
 
+static void slowdrive(std::string direction, double target) {
+    if(direction == "forward") {            
+        drivePID(1.3, 0.001, 0.75, target);
+    }
+
+    if(direction == "reverse") {
+        drivePID(1.3, 0.001, 0.75, -target);
+    }
+}
+
 static void turn(double target) {
-    turnPID(0.42, 0.001, 0, target);
+    turnPID(0.4, 0.002, 0, 1, target);
 }
 
 void AWPRed() {
-    turn(90);
+    Inertial.setHeading(307.54028, deg);
+    WallStake.spin(forward, 75, pct);
+    wait(1000, msec);
+    WallStake.stop();
+    drive("reverse", 3);
+    turn(350);
+    wait(100, msec);
+    WallStake.spin(reverse, 99, pct);
+    wait(500, msec);
+    WallStake.stop();
+    wait(50, msec);
+    slowdrive("reverse", 32.5);
+    P.set(true);
+    turn(145);
+    Intake.spin(forward, 99, pct);
+    drive("forward", 22);
+    turn(113);
+    drive("forward", 8);
+    turn(120);
+    drive("reverse", 24);
+    turn(85);
+    drive("forward", 17);
+    wait(1000, msec);
+    turn(260);
+    drive("forward", 27);
+    Intake.stop();
 }
 
 void AWPBlue() {
-
+    Inertial.setHeading(52.4572, deg);
+    WallStake.spin(forward, 75, pct);
+    wait(1000, msec);
+    WallStake.stop();
+    drive("reverse", 3);
+    turn(10);
+    wait(100, msec);
+    WallStake.spin(reverse, 99, pct);
+    wait(500, msec);
+    WallStake.stop();
+    wait(50, msec);
+    slowdrive("reverse", 32.5);
+    P.set(true);
+    turn(220);
+    Intake.spin(forward, 99, pct);
+    drive("forward", 21);
+    turn(247);
+    drive("forward", 8);
+    turn(240);
+    drive("reverse", 24);
+    turn(275);
+    drive("forward", 17);
+    wait(1000, msec);
+    turn(100);
+    drive("forward", 26);
+    Intake.stop();
 }
 
 void Red() {
@@ -274,9 +262,180 @@ void Red() {
 }
 
 void Blue() {
+    
+}
 
+void GoalRushRedQ() {
+    Inertial.setHeading(347.3, deg);
+    drive("forward", 36);
+    WallStake.spin(forward, 50, pct);
+    wait(1200, msec);
+    WallStake.stop();
+    wait(50, msec);
+    WallStake.spin(reverse, 99, pct);
+    wait(600, msec);
+    WallStake.stop();
+    turn(28);
+    drive("forward", 10);
+    Intake.spin(forward, 99, pct);
+    wait(600, msec);
+    Intake.stop();
+    turn(35);
+    slowdrive("reverse", 26);
+    P.set(true);
+    Intake.spin(forward, 99, pct);
+    wait(500, msec);
+    turn(270);
+    drive("forward", 12);
+    
+}
+
+void GoalRushBlueQ() {
+    Inertial.setHeading(12.7, deg);
+    drive("forward", 36);
+    WallStake.spin(forward, 60, pct);
+    wait(1200, msec);
+    WallStake.stop();
+    turn(332);
+    drive("forward", 10);
+    Intake.spin(forward, 99, pct);
+    wait(50, msec);
+    WallStake.spin(reverse, 99, pct);
+    wait(500, msec);
+    WallStake.stop();
+    Intake.stop();
+    turn(325);
+    slowdrive("reverse", 26);
+    P.set(true);
+    Intake.spin(forward, 99, pct);
+    wait(500, msec);
+    turn(90);
+    drive("forward", 12);
+}
+
+void GoalRushRedE() {
+    Intake.spin(forward, 99, pct);
+    drive("forward", 37);
+    D.set(true);
+    wait(350,msec);
+    Intake.stop();
+    slowdrive("reverse", 13);
+    D.set(false);
+    turn(80);
+    slowdrive("reverse", 15);
+    P.set(true);
+    Intake.spin(forward, 99, pct);
+    turn(170);
+    slowdrive("forward", 26);
+    turn(90);
+    slowdrive("forward", 38);
+    turn(105);
+    slowdrive("forward", 5);
+    wait(1500,msec);
+    turn(170);
+    drive("reverse", 4);
+    D.set(true);
+    wait(500,msec);
+    turn(250);
+    drive("forward", 5);
+    wait(1500,msec);
+    P.set(false);
+    D.set(false);
+    drive("forward", 22);
+    turn(180);
+    drive("reverse", 36);
+    
+}
+
+void GoalRushBlueE() {
+    Intake.spin(forward, 99, pct);
+    drive("forward", 37);
+    D.set(true);
+    wait(350,msec);
+    Intake.stop();
+    slowdrive("reverse", 13);
+    D.set(false);
+    turn(280);
+    slowdrive("reverse", 15);
+    P.set(true);
+    Intake.spin(forward, 99, pct);
+    turn(190);
+    slowdrive("forward", 26);
+    turn(270);
+    slowdrive("forward", 38);
+    turn(255);
+    slowdrive("forward", 5);
+    wait(1500,msec);
+    turn(190);
+    drive("reverse", 4);
+    D.set(true);
+    wait(500,msec);
+    turn(110);
+    drive("forward", 5);
+    wait(1500,msec);
+    P.set(false);
+    D.set(false);
+    drive("forward", 22);
+    turn(180);
+    drive("reverse", 36);
 }
 
 void AutonSkills() {
-
+    Inertial.setHeading(0, deg);
+    Intake.spin(forward, 99 ,pct );
+    wait(500, msec);
+    drive("forward", 15);
+    turn(90);
+    slowdrive("reverse", 24);
+    P.set(true);
+    turn(0);
+    wait(50, msec);
+    drive("forward", 24);
+    turn(303);
+    drive("forward", 37);
+    turn(160);
+    wait(50, msec);
+    slowdrive("forward", 32);
+    turn(180);
+    slowdrive("forward", 22);
+    wait(500, msec);
+    turn(320);
+    drive("forward", 15);
+    wait(500, msec);
+    turn(15);
+    drive("reverse", 10);
+    P.set(false);
+    drive("forward", 9);
+    wait(1000, msec);
+    turn(270);
+    slowdrive("reverse", 80);
+    slowdrive("reverse", 5);
+    P.set(true);
+    turn(0);
+    Inertial.setHeading(0, deg);
+    drive("forward", 24);
+    turn(56.5);
+    slowdrive("forward", 37);
+    turn(200);
+    slowdrive("forward", 26);
+    turn(180);
+    slowdrive("forward", 27);
+    wait(500, msec);
+    turn(40);
+    drive("forward", 15);
+    wait(500, msec);
+    turn(330);
+    drive("reverse", 10);
+    P.set(false);
+    drive("forward", 15);
+    turn(0);
+    drive("forward", 35);
+    turn(315);
+    drive("forward", 85);
+    turn(260);
+    slowdrive("reverse", 55);
+    drive("forward", 60);
+    turn(290);
+    ramdrive("forward", 50);
+    drive("reverse", 5);
 }

@@ -43,7 +43,8 @@ static void MoveIntake() {
         if(intake%2 == 0) {
             Intake.stop();
         }
-        wait(150, msec);
+
+        wait(300, msec);
     }
     
     if(Controller.ButtonL2.pressing()) {
@@ -63,11 +64,9 @@ static void MoveDoinker(){
     if(doinker%2 == 0) {
         D.set(false);
     }
-    wait(150, msec);
+    wait(300, msec);
   }
 }
-
-
 
 int mogo = 0;
 static void MoveMogo() {
@@ -75,13 +74,12 @@ static void MoveMogo() {
         mogo += 1;
         if(mogo%2 == 1) {
             P.set(true);
-            wait(150, msec);
         }
 
         if(mogo%2 == 0) {
             P.set(false);
-            wait(150, msec);
         }
+        wait(300, msec);
     }
 }
 
@@ -90,30 +88,63 @@ static void InitializeWallStake() {
 }
 
 static void MoveWallStake() {
-  double position = Rotation.angle(deg);
-  double error = 20 - position;
-  
-    if(Controller.ButtonUp.pressing()) {
-        WallStake.setVelocity(70, pct);
+    if(Controller.ButtonX.pressing()) {
+        WallStake.setVelocity(60, pct);
         WallStake.spin(forward);
     }
   
-    else if(Controller.ButtonDown.pressing()) {
-        WallStake.setVelocity(70, pct);
+    else if(Controller.ButtonB.pressing()) {
+        WallStake.setVelocity(60, pct);
         WallStake.spin(reverse);
     }
 
-    else if(Controller.ButtonB.pressing()) {
-        if(fabs(error) > 3) {
-            WallStake.spin(forward, 0.2 * error, pct);
-        }
-    }
+    else if (Controller.ButtonUp.pressing()){
+        WallStake.setVelocity(70,pct);
+        WallStake.spin(reverse);
+        wait(2,seconds);
+        WallStake.stop();
 
+    }
     else {
-    WallStake.stop();
+        WallStake.stop();
     }
 }
 
+void WallStakeMacro() {
+    if(Controller.ButtonY.pressing()) {
+        if((Rotation.angle(degrees) > 325)) {
+            while((Rotation.angle(degrees) - 325) > 5) {
+                WallStake.spin(forward, 35, pct);
+            }
+        }
+        else if((Rotation.angle(degrees) < 5)) {
+            WallStake.spin(forward, 35, pct);
+        }
+    
+        else if(Rotation.angle(degrees) < 325) {
+            while((325 - Rotation.angle(deg)) > 5) {
+                WallStake.spin(reverse, 45, pct);
+            }
+        }
+    WallStake.stop(hold);
+    }
+}
+
+/*if(Controller1.ButtonUp.pressing()) {
+    if(Rotational.angle(degrees) < 50) {
+      while(Rotational.angle(degrees) < 50) {
+        wallstakes.spin(fwd, 60, pct);
+      }
+    } else if (Rotational.angle(degrees) > 50) {
+        while(Rotational.angle(degrees) > 50) {
+          wallstakes.spin(reverse, 60, pct);
+      }
+        while(Rotational.angle(degrees) < 50) {
+          wallstakes.spin(fwd, 60, pct);
+        }
+    }
+    wallstakes.stop(hold);
+  }*/
 
 void drivercontrol() {
     InitializeWallStake();
@@ -124,6 +155,7 @@ void drivercontrol() {
       MoveDoinker();
       MoveMogo();
       MoveWallStake();
+      WallStakeMacro();
 
       wait(20, msec);
     }

@@ -17,7 +17,7 @@ void vexcodeInit() {
 
 }
 
-int autons = 5;
+int autons = 9;
 int displayautons = 0;
 
 void select(){
@@ -79,6 +79,30 @@ void select(){
     if (displayautons == 5){
         Controller.Screen.clearScreen();
         Controller.Screen.setCursor(1, 1);
+        Controller.Screen.print("GoalRushRedQ");
+    }
+
+    if (displayautons == 6){
+        Controller.Screen.clearScreen();
+        Controller.Screen.setCursor(1, 1);
+        Controller.Screen.print("GoalRushBlueQ");
+    }
+
+    if (displayautons == 7){
+        Controller.Screen.clearScreen();
+        Controller.Screen.setCursor(1, 1);
+        Controller.Screen.print("GoalRushRedE");
+    }
+
+    if (displayautons == 8){
+        Controller.Screen.clearScreen();
+        Controller.Screen.setCursor(1, 1);
+        Controller.Screen.print("GoalRushBlueE");
+    }
+
+    if (displayautons == 9){
+        Controller.Screen.clearScreen();
+        Controller.Screen.setCursor(1, 1);
         Controller.Screen.print("AutonSkills");
     }
 
@@ -113,6 +137,22 @@ void autonomous(void) {
   }
 
   if(displayautons == 5) {
+    GoalRushRedQ();
+  }
+
+  if(displayautons == 6) {
+    GoalRushBlueQ();
+  }
+
+  if(displayautons == 7) {
+    GoalRushRedE();
+  }
+
+  if(displayautons == 8) {
+    GoalRushRedE();
+  }
+
+  if(displayautons == 9) {
     AutonSkills();
   }
   
@@ -124,7 +164,6 @@ int main() {
   Competition.drivercontrol(drivercontrol);
   Competition.autonomous(autonomous);
 
-  
   pre_auton();
   
   while(1) {

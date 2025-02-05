@@ -17,9 +17,7 @@ extern motor_group RightDrive;
 extern digital_out P;
 extern digital_out D;
 
-extern motor Intake1;
-extern motor Intake2;
-extern motor_group Intake;
+extern motor Intake;
 
 extern rotation Rotation;
 extern motor WallStake;

@@ -149,7 +149,7 @@ void autonomous(void) {
   }
 
   if(displayautons == 8) {
-    GoalRushRedE();
+    GoalRushBlueE();
   }
 
   if(displayautons == 9) {

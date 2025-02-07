@@ -213,23 +213,23 @@ void AWPRed() {
     wait(50, msec);
     slowdrive("reverse", 32.5);
     P.set(true);
-    turn(145);
+    turn(138);
     Intake.spin(forward, 99, pct);
     drive("forward", 22);
     turn(113);
     drive("forward", 8);
-    turn(120);
+    wait(500,msec);
     drive("reverse", 24);
-    turn(85);
+    turn(77);
     drive("forward", 17);
     wait(1000, msec);
     turn(260);
-    drive("forward", 27);
+    drive("forward", 26);
     Intake.stop();
 }
 
 void AWPBlue() {
-    Inertial.setHeading(52.4572, deg);
+    Inertial.setHeading(52.45972, deg);
     WallStake.spin(forward, 75, pct);
     wait(1000, msec);
     WallStake.stop();
@@ -242,14 +242,14 @@ void AWPBlue() {
     wait(50, msec);
     slowdrive("reverse", 32.5);
     P.set(true);
-    turn(220);
+    turn(222);
     Intake.spin(forward, 99, pct);
-    drive("forward", 21);
+    drive("forward", 22);
     turn(247);
     drive("forward", 8);
-    turn(240);
+    wait(500,msec);
     drive("reverse", 24);
-    turn(275);
+    turn(283);
     drive("forward", 17);
     wait(1000, msec);
     turn(100);
@@ -287,6 +287,8 @@ void GoalRushRedQ() {
     wait(500, msec);
     turn(270);
     drive("forward", 12);
+    D.set(true);
+    wait(200,msec);
     
 }
 
@@ -315,11 +317,11 @@ void GoalRushBlueQ() {
 
 void GoalRushRedE() {
     Intake.spin(forward, 99, pct);
-    drive("forward", 37);
+    drive("forward", 39);
     D.set(true);
     wait(350,msec);
     Intake.stop();
-    slowdrive("reverse", 13);
+    slowdrive("reverse", 15);
     D.set(false);
     turn(80);
     slowdrive("reverse", 15);
@@ -328,56 +330,39 @@ void GoalRushRedE() {
     turn(170);
     slowdrive("forward", 26);
     turn(90);
-    slowdrive("forward", 38);
+    slowdrive("forward", 35);
     turn(105);
     slowdrive("forward", 5);
     wait(1500,msec);
     turn(170);
-    drive("reverse", 4);
     D.set(true);
-    wait(500,msec);
-    turn(250);
-    drive("forward", 5);
-    wait(1500,msec);
-    P.set(false);
+    turn(140);
+    wait(20,msec);
     D.set(false);
-    drive("forward", 22);
-    turn(180);
-    drive("reverse", 36);
-    
+    turn(170);  
+   
 }
 
 void GoalRushBlueE() {
     Intake.spin(forward, 99, pct);
-    drive("forward", 37);
-    D.set(true);
-    wait(350,msec);
+    drive("forward", 39);
+    wait(050, msec);
     Intake.stop();
-    slowdrive("reverse", 13);
+    D.set(true);
+    wait(350, msec);
+    slowdrive("reverse", 14);
     D.set(false);
-    turn(280);
-    slowdrive("reverse", 15);
+    turn(250);
+    wait(250,msec);
+    slowdrive("reverse", 34);
     P.set(true);
     Intake.spin(forward, 99, pct);
-    turn(190);
-    slowdrive("forward", 26);
-    turn(270);
-    slowdrive("forward", 38);
-    turn(255);
-    slowdrive("forward", 5);
-    wait(1500,msec);
-    turn(190);
-    drive("reverse", 4);
-    D.set(true);
-    wait(500,msec);
-    turn(110);
-    drive("forward", 5);
-    wait(1500,msec);
-    P.set(false);
-    D.set(false);
-    drive("forward", 22);
-    turn(180);
-    drive("reverse", 36);
+    turn(200);
+    drive("forward",32);
+    turn(230);
+    drive("forward",2);
+    
+
 }
 
 void AutonSkills() {
@@ -408,7 +393,8 @@ void AutonSkills() {
     drive("forward", 9);
     wait(1000, msec);
     turn(270);
-    slowdrive("reverse", 80);
+    slowdrive("reverse", 60);
+    slowdrive("reverse", 20);
     slowdrive("reverse", 5);
     P.set(true);
     turn(0);
@@ -433,7 +419,7 @@ void AutonSkills() {
     turn(315);
     drive("forward", 85);
     turn(260);
-    slowdrive("reverse", 55);
+    slowdrive("reverse", 50);
     drive("forward", 60);
     turn(290);
     ramdrive("forward", 50);

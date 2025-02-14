@@ -1,5 +1,7 @@
 #pragma once
 using namespace vex;
+
+
 extern brain Brain;
 extern controller Controller;
 
@@ -13,13 +15,13 @@ extern motor BR;
 extern motor_group RightDrive;
 
 extern digital_out P;
-extern digital_out Doinker;
+extern digital_out D;
 
 extern motor Intake1;
 extern motor Intake2;
 extern motor_group Intake;
-
-//extern motor Claw;
+extern rotation Rotation;
+extern motor WallStake;
 
 extern inertial Inertial;
 
